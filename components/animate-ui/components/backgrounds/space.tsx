@@ -98,19 +98,20 @@ export function SpaceBackground({ className, children, ...props }: SpaceBackgrou
       {/* Stars canvas */}
       <canvas ref={canvasRef} className="absolute inset-0 z-0 block size-full pointer-events-none opacity-80" />
 
-      {/* Static Earth Image - Corner to corner, max 30% height, transparent black bg */}
+      {/* Earth Image Header - Pinned to bottom, max 30% height */}
       <div 
         className="absolute left-0 bottom-0 w-full pointer-events-none flex justify-center items-end"
-        style={{ 
-           height: '30vh',
-           mixBlendMode: 'screen' 
-        }}
+        style={{ height: '30vh' }}
       >
          <img
-            src="/earth-texture.jpg" // Using the exact image from your reference
-            alt="Earth"
+            src="/earth-texture.jpg" // Using the exact image you provided
+            alt="Earth Horizon"
             className="w-full h-full object-cover"
-            style={{ objectPosition: 'center top' }}
+            style={{ 
+               objectPosition: 'center top',
+               /* This CSS trick chemically removes the true-black background of the photo, leaving only the Earth and allowing all stars to pass through everywhere else! */
+               mixBlendMode: 'lighten', 
+            }}
          />
       </div>
 
