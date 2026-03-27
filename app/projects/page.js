@@ -2,47 +2,47 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import NotificationBell from '@/components/NotificationBell';
+import { useAuth } from '@/contexts/AuthContext';
+import { createProject, fetchAllProjects, requestToJoinProject } from '@/lib/projects';
+import { createNotification } from '@/lib/notifications';
 
 export default function Projects() {
+  const { user, loading: authLoading, logout } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
-  const [showRegister, setShowRegister] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [currentUser, setCurrentUser] = useState('');
-  const [emailInput, setEmailInput] = useState('');
-  const [usernameInput, setUsernameInput] = useState('');
+
   
-  const [showCreateProject, setShowCreateProject] = useState(false);
+  const [projectsList, setProjectsList] = useState([]);
+  const [loadingProjects, setLoadingProjects] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
+  
   const [showSearch, setShowSearch] = useState(false);
   const [searchTab, setSearchTab] = useState('projects');
   const [searchQuery, setSearchQuery] = useState('');
 
+  const isLoggedIn = !!user;
+  const currentUser = user?.displayName || user?.email?.split('@')[0] || '';
+
   useEffect(() => {
-    // Retrieve login state from localStorage on load
-    const loggedIn = localStorage.getItem('isLoggedIn');
-    const user = localStorage.getItem('currentUser');
-    if (loggedIn === 'true') {
-      setIsLoggedIn(true);
-      if (user) setCurrentUser(user);
-    }
+    loadProjects();
   }, []);
 
-  const skills = [
-    "Java", "Python", "C", "C++", "Tailwind CSS", "JavaScript", 
-    "TypeScript", "React.js", "Node.js", "Next.js", "Express", 
-    "MongoDB", "PostgreSQL", "Firebase"
-  ];
-  
-  const [selectedSkills, setSelectedSkills] = useState([]);
-
-  const toggleSkill = (skill) => {
-    if (selectedSkills.includes(skill)) {
-      setSelectedSkills(selectedSkills.filter(s => s !== skill));
-    } else {
-      setSelectedSkills([...selectedSkills, skill]);
+  const loadProjects = async () => {
+    try {
+      setLoadingProjects(true);
+      const data = await fetchAllProjects();
+      setProjectsList(data);
+    } catch (e) {
+      console.error(e);
+      setFetchError(e.message);
+    } finally {
+      setLoadingProjects(false);
     }
   };
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-black to-purple-900 text-white font-poppins">
@@ -58,15 +58,15 @@ export default function Projects() {
         {/* Right side */}
         <div className="flex items-center space-x-4">
           {isLoggedIn && (
-            <button 
-              onClick={() => setShowCreateProject(true)} 
+            <Link 
+              href="/projects/new" 
               className="bg-purple-600 text-white px-4 py-2 rounded-lg text-lg hover:bg-purple-500 transition-colors flex items-center gap-2 font-medium"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
               Create Project
-            </button>
+            </Link>
           )}
           
           {/* Search */}
@@ -76,12 +76,16 @@ export default function Projects() {
             </svg>
           </button>
           
-          {isLoggedIn ? (
-            <div className="relative z-40">
-              <button 
-                onClick={() => setShowProfileMenu(!showProfileMenu)}
-                className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-xl hover:bg-purple-500 transition-colors focus:outline-none uppercase"
-              >
+          {authLoading ? (
+            <div className="w-10 h-10 rounded-full bg-white/10 animate-pulse"></div>
+          ) : isLoggedIn ? (
+            <>
+              <NotificationBell />
+              <div className="relative z-40">
+                <button 
+                  onClick={() => setShowProfileMenu(!showProfileMenu)}
+                  className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-xl hover:bg-purple-500 transition-colors focus:outline-none uppercase"
+                >
                 {currentUser ? currentUser.charAt(0) : 'U'}
               </button>
               
@@ -104,8 +108,9 @@ export default function Projects() {
                 </div>
               )}
             </div>
+            </>
           ) : (
-            <button onClick={() => setShowLogin(true)} className="bg-blue-500 text-white px-4 py-2 rounded-lg text-xl hover:bg-blue-600 transition-colors">Login</button>
+            <Link href="/" className="bg-blue-500 text-white px-4 py-2 rounded-lg text-xl hover:bg-blue-600 transition-colors">Login</Link>
           )}
         </div>
       </nav>
@@ -116,94 +121,67 @@ export default function Projects() {
           Explore innovative projects, join brilliant teams, or launch your own disruptive ideas.
         </p>
         
-        {/* Placeholder for projects grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl">
-          <div className="bg-white/10 p-6 rounded-xl border border-white/20 hover:bg-white/15 transition-all text-left">
-            <h3 className="text-2xl font-bold mb-2">AI Content Generator</h3>
-            <p className="text-gray-300 mb-4 h-20 overflow-hidden">Building a next-gen tool that helps creators generate posts, blogs and scripts using OpenAI.</p>
-            <div className="flex flex-wrap gap-2 mb-4">
-              <span className="bg-blue-600 px-3 py-1 rounded-full text-sm">Next.js</span>
-              <span className="bg-yellow-600 px-3 py-1 rounded-full text-sm">Python</span>
-            </div>
+        {fetchError && (
+          <div className="bg-red-900/40 border border-red-500 text-red-200 p-6 rounded-xl max-w-2xl mb-8">
+            <h3 className="text-xl font-bold mb-2">Failed to load projects</h3>
+            <p className="font-mono text-sm">{fetchError}</p>
+            <p className="mt-4 text-sm text-red-300">If you see a "Missing or insufficient permissions" error, please go to your Firebase Console -&gt; Firestore Database -&gt; Rules, and ensure your read/write rules allow access.</p>
           </div>
-          <div className="bg-white/10 p-6 rounded-xl border border-white/20 hover:bg-white/15 transition-all text-left">
-            <h3 className="text-2xl font-bold mb-2">Crypto Portfolio Tracker</h3>
-            <p className="text-gray-300 mb-4 h-20 overflow-hidden">An open-source dashboard to track multi-chain crypto assets securely in one place.</p>
-            <div className="flex flex-wrap gap-2 mb-4">
-              <span className="bg-blue-500 px-3 py-1 rounded-full text-sm">React.js</span>
-              <span className="bg-green-600 px-3 py-1 rounded-full text-sm">Node.js</span>
-            </div>
+        )}
+        
+        {loadingProjects ? (
+          <p className="text-xl text-gray-400">Loading projects...</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl">
+            {projectsList.map(project => (
+              <Link href={`/projects/${project.id}`} key={project.id} className="bg-[#111113]/80 backdrop-blur-md rounded-2xl border border-white/10 hover:border-purple-500/30 p-6 transition-all text-left flex flex-col shadow-xl group">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="text-2xl font-bold truncate text-white group-hover:text-purple-400 transition-colors">{project.title}</h3>
+                  {project.projectType && (
+                    <span className="bg-blue-900/40 text-blue-300 border border-blue-700/50 px-2 py-1 rounded text-xs font-semibold whitespace-nowrap">
+                      {project.projectType}
+                    </span>
+                  )}
+                </div>
+                
+                <p className="text-gray-400 mb-4 h-16 overflow-hidden line-clamp-3 text-sm leading-relaxed">{project.description}</p>
+                
+                {(project.teamSize || project.deadline) && (
+                  <div className="flex flex-wrap gap-4 mb-4 text-xs text-gray-400 border-y border-white/5 py-3">
+                    {project.teamSize && (
+                      <div className="flex items-center gap-1">
+                        <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                        <span>Size: <strong className="text-gray-300">{project.teamSize}</strong></span>
+                      </div>
+                    )}
+                    {project.commitmentLevel && (
+                      <div className="flex items-center gap-1">
+                        <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span>Commitment: <strong className="text-gray-300">{project.commitmentLevel}</strong></span>
+                      </div>
+                    )}
+                    {project.deadline && (
+                      <div className="flex items-center gap-1">
+                        <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        <span>Deadline: <strong className="text-gray-300">{project.deadline}</strong></span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="flex flex-wrap gap-2 mb-2 flex-grow content-start">
+                  {project.skills?.map(skill => (
+                    <span key={skill} className="bg-white/5 border border-white/10 px-2 py-1 rounded text-xs text-gray-300">{skill}</span>
+                  ))}
+                </div>
+              </Link>
+            ))}
+            {projectsList.length === 0 && (
+              <p className="col-span-3 text-center text-gray-400">No projects found. Be the first to create one!</p>
+            )}
           </div>
-        </div>
+        )}
       </main>
-
-      {/* Login Modal */}
-      {showLogin && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded-lg w-96 min-h-[400px] relative shadow-black shadow-lg">
-            <button onClick={() => setShowLogin(false)} className="absolute top-2 right-2 text-gray-500 text-2xl hover:text-gray-800">&times;</button>
-            <h2 className="text-4xl mb-6 text-black text-center">Login</h2>
-            <div className="mb-4">
-              <label className="block text-lg mb-1 text-black">Email:</label>
-              <input type="email" placeholder="Enter Email" value={emailInput} onChange={(e) => setEmailInput(e.target.value)} className="w-full p-3 border text-black text-lg" />
-            </div>
-            <div className="mb-6">
-              <label className="block text-lg mb-1 text-black">Password:</label>
-              <input type="password" placeholder="Enter Password" className="w-full p-3 border text-black text-lg" />
-            </div>
-            <button 
-              onClick={() => { 
-                const user = emailInput ? emailInput.split('@')[0] : 'User';
-                setIsLoggedIn(true); 
-                setCurrentUser(user); 
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('currentUser', user);
-                setShowLogin(false); 
-              }} 
-              className="w-full bg-blue-500 text-white p-3 rounded text-lg mb-4 hover:bg-blue-600 transition-colors"
-            >
-              Login
-            </button>
-            <p className="text-base text-center text-gray-600">Don't have account? <button onClick={() => { setShowLogin(false); setShowRegister(true); }} className="text-blue-500 hover:underline">Register now</button></p>
-          </div>
-        </div>
-      )}
-
-      {/* Register Modal */}
-      {showRegister && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded-lg w-96 min-h-[400px] relative shadow-black shadow-lg">
-            <button onClick={() => setShowRegister(false)} className="absolute top-2 right-2 text-gray-500 text-2xl hover:text-gray-800">&times;</button>
-            <h2 className="text-4xl mb-6 text-black text-center">Register</h2>
-            <div className="mb-4">
-              <label className="block text-lg mb-1 text-black">Username:</label>
-              <input type="text" placeholder="Enter Username" value={usernameInput} onChange={(e) => setUsernameInput(e.target.value)} className="w-full p-3 border text-black text-lg" />
-            </div>
-            <div className="mb-4">
-              <label className="block text-lg mb-1 text-black">Email:</label>
-              <input type="email" placeholder="Enter Email" className="w-full p-3 border text-black text-lg" />
-            </div>
-            <div className="mb-6">
-              <label className="block text-lg mb-1 text-black">Password:</label>
-              <input type="password" placeholder="Enter Password" className="w-full p-3 border text-black text-lg" />
-            </div>
-            <button 
-              onClick={() => { 
-                const user = usernameInput || 'User';
-                setIsLoggedIn(true); 
-                setCurrentUser(user); 
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('currentUser', user);
-                setShowRegister(false); 
-              }} 
-              className="w-full bg-blue-500 text-white p-3 rounded text-lg mb-4 hover:bg-blue-600 transition-colors"
-            >
-              Register
-            </button>
-            <p className="text-base text-center text-gray-600">Already have account? <button onClick={() => { setShowRegister(false); setShowLogin(true); }} className="text-blue-500 hover:underline">Login now</button></p>
-          </div>
-        </div>
-      )}
 
       {/* Logout Confirmation Modal */}
       {showLogoutConfirm && (
@@ -214,10 +192,8 @@ export default function Projects() {
             <p className="text-xl text-black text-center mb-8">Are you sure you want to logout?</p>
             <div className="flex flex-col space-y-4">
               <button 
-                onClick={() => { 
-                  setIsLoggedIn(false); 
-                  localStorage.removeItem('isLoggedIn');
-                  localStorage.removeItem('currentUser');
+                onClick={async () => { 
+                  await logout();
                   setShowLogoutConfirm(false); 
                 }}
                 className="w-full bg-blue-500 text-white p-3 rounded text-lg hover:bg-blue-600 transition-colors"
@@ -235,49 +211,7 @@ export default function Projects() {
         </div>
       )}
 
-      {/* Create Project Modal */}
-      {showCreateProject && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="bg-black p-8 rounded-xl w-[32rem] max-h-[90vh] overflow-y-auto relative shadow-[0_0_30px_rgba(168,85,247,0.3)] border border-purple-500/30 font-poppins text-white">
-            <button onClick={() => setShowCreateProject(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white text-3xl font-light">&times;</button>
-            <h2 className="text-3xl mb-8 font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">Create Project</h2>
-            
-            <div className="mb-5">
-              <label className="block text-lg mb-2 text-gray-200">Project title</label>
-              <input type="text" placeholder="Enter project title" className="w-full p-3 bg-gray-900 border border-gray-700 rounded focus:border-purple-500 focus:outline-none text-white text-lg transition-colors" />
-            </div>
-            
-            <div className="mb-5">
-              <label className="block text-lg mb-2 text-gray-200">Project Description</label>
-              <textarea placeholder="Describe your project" rows="4" className="w-full p-3 bg-gray-900 border border-gray-700 rounded focus:border-purple-500 focus:outline-none text-white text-lg transition-colors resize-none"></textarea>
-            </div>
-            
-            <div className="mb-8">
-              <label className="block text-lg mb-3 text-gray-200">Skills required</label>
-              <div className="flex flex-wrap gap-3">
-                {skills.map(skill => (
-                  <button
-                    key={skill}
-                    onClick={() => toggleSkill(skill)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                      selectedSkills.includes(skill) 
-                        ? 'bg-purple-600 text-white shadow-[0_0_10px_rgba(168,85,247,0.5)] border border-purple-400' 
-                        : 'bg-gray-800 text-gray-300 border border-gray-600 hover:border-gray-400'
-                    }`}
-                  >
-                    {skill}
-                  </button>
-                ))}
-              </div>
-            </div>
-            
-            <button onClick={() => setShowCreateProject(false)} className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-lg text-xl font-semibold hover:from-blue-500 hover:to-purple-500 transition-all shadow-lg active:scale-[0.98]">
-              Create Project
-            </button>
-          </div>
-        </div>
-      )}
-      
+
       {/* Search Modal */}
       {showSearch && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-60 backdrop-blur-sm">

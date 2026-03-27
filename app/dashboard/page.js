@@ -2,29 +2,52 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import NotificationBell from '@/components/NotificationBell';
+import { useAuth } from '@/contexts/AuthContext';
+import { fetchProjectsByUser, fetchJoinRequestsForLeader, handleJoinRequest } from '@/lib/projects';
+import { createNotification } from '@/lib/notifications';
 
 export default function Dashboard() {
+  const { user, loading: authLoading, logout } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
-  const [showRegister, setShowRegister] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [currentUser, setCurrentUser] = useState('');
-  const [emailInput, setEmailInput] = useState('');
-  const [usernameInput, setUsernameInput] = useState('');
+  const [myProjects, setMyProjects] = useState([]);
+  const [joinRequests, setJoinRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
+
   const [showSearch, setShowSearch] = useState(false);
   const [searchTab, setSearchTab] = useState('projects');
   const [searchQuery, setSearchQuery] = useState('');
 
+  const isLoggedIn = !!user;
+  const currentUser = user?.displayName || user?.email?.split('@')[0] || '';
+
   useEffect(() => {
-    // Retrieve login state from localStorage on load
-    const loggedIn = localStorage.getItem('isLoggedIn');
-    const user = localStorage.getItem('currentUser');
-    if (loggedIn === 'true') {
-      setIsLoggedIn(true);
-      if (user) setCurrentUser(user);
+    if (user?.uid) {
+      loadDashboardData();
+    } else {
+      setLoading(false);
     }
-  }, []);
+  }, [user]);
+
+  const loadDashboardData = async () => {
+    try {
+      setLoading(true);
+      const [projectsData, requestsData] = await Promise.all([
+        fetchProjectsByUser(user.uid),
+        fetchJoinRequestsForLeader(user.uid)
+      ]);
+      setMyProjects(projectsData);
+      setJoinRequests(requestsData);
+    } catch (e) {
+      console.error(e);
+      setFetchError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-black to-purple-900 text-white font-poppins flex flex-col">
@@ -46,19 +69,23 @@ export default function Dashboard() {
             </svg>
           </button>
           
-          {isLoggedIn ? (
-            <div className="relative">
-              <button
-                onClick={() => setShowProfileMenu(!showProfileMenu)}
-                className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-xl hover:bg-purple-500 transition-colors focus:outline-none uppercase"
-              >
+          {authLoading ? (
+            <div className="w-10 h-10 rounded-full bg-white/10 animate-pulse"></div>
+          ) : isLoggedIn ? (
+            <>
+              <NotificationBell />
+              <div className="relative">
+                <button
+                  onClick={() => setShowProfileMenu(!showProfileMenu)}
+                  className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-xl hover:bg-purple-500 transition-colors focus:outline-none uppercase"
+                >
                 {currentUser ? currentUser.charAt(0) : 'U'}
               </button>
 
               {showProfileMenu && (
                 <div className="absolute top-full right-0 mt-3 bg-black bg-opacity-90 rounded-lg shadow-lg w-48 border border-gray-700 z-50 overflow-hidden">
                   <button className="flex items-center w-full px-4 py-3 text-left text-white hover:bg-purple-600 transition-colors">
-                    <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.065 2.572c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                     Settings
                   </button>
                   <button
@@ -74,8 +101,9 @@ export default function Dashboard() {
                 </div>
               )}
             </div>
+            </>
           ) : (
-            <button onClick={() => setShowLogin(true)} className="bg-blue-500 text-white px-4 py-2 rounded-lg text-xl hover:bg-blue-600 transition-colors">Login</button>
+            <Link href="/" className="bg-blue-500 text-white px-4 py-2 rounded-lg text-xl hover:bg-blue-600 transition-colors">Login</Link>
           )}
         </div>
       </nav>
@@ -135,69 +163,60 @@ export default function Dashboard() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 pb-20">
-            {/* Project Card 1 */}
-            <div className="bg-black/40 p-6 rounded-2xl border border-white/10 hover:border-purple-500/50 transition-all group flex flex-col h-full hover:shadow-[0_8px_30px_rgba(168,85,247,0.15)] relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-bl-full -z-10 group-hover:bg-blue-500/20 transition-all"></div>
-              
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-2xl font-bold text-white group-hover:text-purple-300 transition-colors">E-Commerce API</h3>
-                <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm font-medium border border-green-500/20">Active</span>
-              </div>
-              
-              <p className="text-gray-400 mb-6 flex-grow leading-relaxed">
-                A highly scalable backend architecture for an upcoming e-commerce platform using microservices.
-              </p>
-              
-              <div className="mt-auto">
-                <div className="flex flex-wrap gap-2 mb-5 border-t border-white/10 pt-4">
-                  <span className="text-xs font-semibold px-2 py-1 bg-white/5 rounded text-gray-300">Node.js</span>
-                  <span className="text-xs font-semibold px-2 py-1 bg-white/5 rounded text-gray-300">Express</span>
-                  <span className="text-xs font-semibold px-2 py-1 bg-white/5 rounded text-gray-300">PostgreSQL</span>
-                </div>
-                
-                <div className="flex justify-between items-center text-sm text-gray-400">
-                  <div className="flex -space-x-2">
-                    <div className="w-8 h-8 rounded-full bg-blue-600 border-2 border-black flex items-center justify-center text-xs font-bold text-white z-20">A</div>
-                    <div className="w-8 h-8 rounded-full bg-purple-600 border-2 border-black flex items-center justify-center text-xs font-bold text-white z-10 uppercase">{currentUser ? currentUser.charAt(0) : 'U'}</div>
-                    <div className="w-8 h-8 rounded-full bg-gray-800 border-2 border-black flex items-center justify-center text-xs font-bold text-gray-300 z-0">+2</div>
-                  </div>
-                  <span>Updated 2 days ago</span>
-                </div>
-              </div>
+          {fetchError && (
+            <div className="bg-red-900/40 border border-red-500 text-red-200 p-6 rounded-xl max-w-2xl mb-8">
+              <h3 className="text-xl font-bold mb-2">Failed to load Dashboard</h3>
+              <p className="font-mono text-sm">{fetchError}</p>
+              <p className="mt-4 text-sm text-red-300">If you see an "index" error, click the Firebase link in the error message to build the index. If you see a permissions error, check your Firestore Rules.</p>
             </div>
+          )}
 
-            {/* Project Card 2 */}
-            <div className="bg-black/40 p-6 rounded-2xl border border-white/10 hover:border-purple-500/50 transition-all group flex flex-col h-full hover:shadow-[0_8px_30px_rgba(168,85,247,0.15)] relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 rounded-bl-full -z-10 group-hover:bg-purple-500/20 transition-all"></div>
-              
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-2xl font-bold text-white group-hover:text-purple-300 transition-colors">Task Management App</h3>
-                <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-sm font-medium border border-yellow-500/20">Planning</span>
-              </div>
-              
-              <p className="text-gray-400 mb-6 flex-grow leading-relaxed">
-                A collaborative task board with real-time updates using WebSockets and a clean drag-and-drop UI.
-              </p>
-              
-              <div className="mt-auto">
-                <div className="flex flex-wrap gap-2 mb-5 border-t border-white/10 pt-4">
-                  <span className="text-xs font-semibold px-2 py-1 bg-white/5 rounded text-gray-300">React</span>
-                  <span className="text-xs font-semibold px-2 py-1 bg-white/5 rounded text-gray-300">Tailwind</span>
-                  <span className="text-xs font-semibold px-2 py-1 bg-white/5 rounded text-gray-300">Socket.io</span>
-                </div>
-                
-                <div className="flex justify-between items-center text-sm text-gray-400">
-                  <div className="flex -space-x-2">
-                    <div className="w-8 h-8 rounded-full bg-purple-600 border-2 border-black flex items-center justify-center text-xs font-bold text-white z-20 uppercase">{currentUser ? currentUser.charAt(0) : 'U'}</div>
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 pb-6">
+            {loading ? (
+              <p className="text-gray-400">Loading projects...</p>
+            ) : myProjects.map(project => (
+              <Link href={`/projects/${project.id}`} key={project.id} className="bg-black/40 p-6 rounded-2xl border border-white/10 hover:border-purple-500/50 transition-all group flex flex-col h-full relative overflow-hidden">
+                <div className="flex justify-between items-start mb-4">
+                  <h3 className="text-2xl font-bold text-white truncate group-hover:text-purple-400 transition-colors">{project.title}</h3>
+                  <div className="flex flex-col gap-2 items-end">
+                    {project.creatorId === user?.uid && <span className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded text-xs font-semibold border border-purple-500/20">👑 Owner</span>}
+                    {project.projectType && <span className="px-2 py-1 bg-blue-900/30 text-blue-300 rounded text-xs font-semibold border border-blue-700/50">{project.projectType}</span>}
                   </div>
-                  <span>Created 1 week ago</span>
                 </div>
-              </div>
-            </div>
+                <p className="text-gray-400 mb-4 flex-grow leading-relaxed line-clamp-2 text-sm">{project.description}</p>
+                
+                {(project.teamSize || project.deadline) && (
+                  <div className="flex flex-wrap gap-3 mb-4 text-xs text-gray-400 border-y border-white/5 py-3">
+                    {project.teamSize && (
+                      <div className="flex items-center gap-1">
+                        <svg className="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                        <span>Size: <strong>{project.teamSize}</strong></span>
+                      </div>
+                    )}
+                    {project.commitmentLevel && (
+                      <div className="flex items-center gap-1">
+                        <svg className="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span>Commitment: <strong>{project.commitmentLevel}</strong></span>
+                      </div>
+                    )}
+                    {project.deadline && (
+                      <div className="flex items-center gap-1">
+                        <svg className="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        <span>Deadline: <strong>{project.deadline}</strong></span>
+                      </div>
+                    )}
+                  </div>
+                )}
 
-            {/* Empty State / Add Project card */}
-            <Link href="/projects" className="bg-white/5 border-2 border-dashed border-white/20 rounded-2xl p-6 flex flex-col items-center justify-center text-gray-400 hover:text-white hover:border-purple-500/50 hover:bg-white/10 transition-all min-h-[250px] group">
+                <div className="flex flex-wrap gap-2 pt-2 border-t border-transparent">
+                  {project.skills?.map(skill => (
+                    <span key={skill} className="text-xs font-medium px-2 py-1 bg-white/5 border border-white/10 rounded text-gray-300">{skill}</span>
+                  ))}
+                </div>
+              </Link>
+            ))}
+            
+            <Link href="/projects" className="bg-white/5 border-2 border-dashed border-white/20 rounded-2xl p-6 flex flex-col items-center justify-center text-gray-400 hover:text-white hover:border-purple-500/50 hover:bg-white/10 transition-all min-h-[200px] group">
               <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 group-hover:bg-purple-500/20 group-hover:text-purple-400 transition-colors">
                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
               </div>
@@ -205,76 +224,51 @@ export default function Dashboard() {
               <p className="text-sm text-center max-w-xs">Discover more projects to collaborate on from the community.</p>
             </Link>
           </div>
+
+          {joinRequests.length > 0 && (
+            <div className="mt-8 pb-20">
+              <h2 className="text-3xl font-bold mb-6 text-white border-b border-white/10 pb-4">Join Requests</h2>
+              <div className="grid grid-cols-1 gap-4">
+                {joinRequests.map(req => (
+                  <div key={req.id} className="bg-white/5 p-4 rounded-xl border border-white/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                      <p className="text-lg font-semibold text-white">{req.userName} <span className="text-gray-400 font-normal">wants to join</span> {req.projectTitle}</p>
+                    </div>
+                    <div className="flex gap-3 w-full md:w-auto">
+                      <button 
+                        onClick={async () => {
+                          try {
+                            await handleJoinRequest(req.id, req.projectId, req.userId, req.userName, 'accepted');
+                            await createNotification(req.userId, 'request_accepted', `Your request to join ${req.projectTitle} was accepted!`, req.projectId);
+                            setJoinRequests(prev => prev.filter(r => r.id !== req.id));
+                          } catch (e) { alert(e.message); }
+                        }}
+                        className="flex-1 md:flex-none bg-green-600 hover:bg-green-500 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                      >
+                        Accept
+                      </button>
+                      <button 
+                        onClick={async () => {
+                          const reason = window.prompt("Reason for rejection (mandatory):");
+                          if (reason === null || reason.trim() === "") return alert("Rejection reason is mandatory.");
+                          try {
+                            await handleJoinRequest(req.id, req.projectId, req.userId, req.userName, 'rejected');
+                            await createNotification(req.userId, 'request_rejected', `Your request to join ${req.projectTitle} was rejected.\nReason: ${reason}`, req.projectId);
+                            setJoinRequests(prev => prev.filter(r => r.id !== req.id));
+                          } catch (e) { alert(e.message); }
+                        }}
+                        className="flex-1 md:flex-none bg-red-600 hover:bg-red-500 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Login Modal */}
-      {showLogin && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded-lg w-96 min-h-[400px] relative shadow-black shadow-lg">
-            <button onClick={() => setShowLogin(false)} className="absolute top-2 right-2 text-gray-500 text-2xl">&times;</button>
-            <h2 className="text-4xl mb-6 text-black text-center">Login</h2>
-            <div className="mb-4">
-              <label className="block text-lg mb-1 text-black">Email:</label>
-              <input type="email" placeholder="Enter Email" value={emailInput} onChange={(e) => setEmailInput(e.target.value)} className="w-full p-3 border text-black text-lg" />
-            </div>
-            <div className="mb-6">
-              <label className="block text-lg mb-1 text-black">Password:</label>
-              <input type="password" placeholder="Enter Password" className="w-full p-3 border text-black text-lg" />
-            </div>
-            <button
-              onClick={() => {
-                const user = emailInput ? emailInput.split('@')[0] : 'User';
-                setIsLoggedIn(true);
-                setCurrentUser(user);
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('currentUser', user);
-                setShowLogin(false);
-              }}
-              className="w-full bg-blue-500 text-white p-3 rounded text-lg mb-4 hover:bg-blue-600 transition-colors"
-            >
-              Login
-            </button>
-            <p className="text-base text-center text-gray-600">Don't have account? <a href="#" onClick={() => { setShowLogin(false); setShowRegister(true); }} className="text-blue-500">Register now</a></p>
-          </div>
-        </div>
-      )}
-
-      {/* Register Modal */}
-      {showRegister && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded-lg w-96 min-h-[400px] relative shadow-black shadow-lg">
-            <button onClick={() => setShowRegister(false)} className="absolute top-2 right-2 text-gray-500 text-2xl">&times;</button>
-            <h2 className="text-4xl mb-6 text-black text-center">Register</h2>
-            <div className="mb-4">
-              <label className="block text-lg mb-1 text-black">Username:</label>
-              <input type="text" placeholder="Enter Username" value={usernameInput} onChange={(e) => setUsernameInput(e.target.value)} className="w-full p-3 border text-black text-lg" />
-            </div>
-            <div className="mb-4">
-              <label className="block text-lg mb-1 text-black">Email:</label>
-              <input type="email" placeholder="Enter Email" className="w-full p-3 border text-black text-lg" />
-            </div>
-            <div className="mb-6">
-              <label className="block text-lg mb-1 text-black">Password:</label>
-              <input type="password" placeholder="Enter Password" className="w-full p-3 border text-black text-lg" />
-            </div>
-            <button
-              onClick={() => {
-                const user = usernameInput || 'User';
-                setIsLoggedIn(true);
-                setCurrentUser(user);
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('currentUser', user);
-                setShowRegister(false);
-              }}
-              className="w-full bg-blue-500 text-white p-3 rounded text-lg mb-4 hover:bg-blue-600 transition-colors"
-            >
-              Register
-            </button>
-            <p className="text-base text-center text-gray-600">Already have account? <a href="#" onClick={() => { setShowRegister(false); setShowLogin(true); }} className="text-blue-500">Login now</a></p>
-          </div>
-        </div>
-      )}
 
       {/* Logout Confirmation Modal */}
       {showLogoutConfirm && (
@@ -285,10 +279,8 @@ export default function Dashboard() {
             <p className="text-xl text-black text-center mb-8">Are you sure you want to logout?</p>
             <div className="flex flex-col space-y-4">
               <button
-                onClick={() => {
-                  setIsLoggedIn(false);
-                  localStorage.removeItem('isLoggedIn');
-                  localStorage.removeItem('currentUser');
+                onClick={async () => {
+                  await logout();
                   setShowLogoutConfirm(false);
                 }}
                 className="w-full bg-blue-500 text-white p-3 rounded text-lg hover:bg-blue-600 transition-colors"
