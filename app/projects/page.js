@@ -45,22 +45,22 @@ export default function Projects() {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-black to-purple-900 text-white font-poppins">
+    <div className="min-h-screen text-white font-poppins">
       {/* Navbar */}
       <nav className="flex items-center justify-between p-4 font-poppins">
         {/* Left side */}
         <div className="flex items-center space-x-6">
           <Link href="/" className="text-3xl font-bold">CollabCrew</Link>
-          <Link href="/dashboard" className="text-white hover:text-purple-400 text-xl">Dashboard</Link>
-          <Link href="/projects" className="text-white hover:text-purple-400 text-xl">Projects</Link>
-          <Link href="/livechat" className="text-white hover:text-purple-400 text-xl">Livechat</Link>
+          <Link href="/dashboard" className="text-gray-400 hover:text-white text-xl">Dashboard</Link>
+          <Link href="/projects" className="text-white hover:text-gray-300 text-xl font-semibold border-b-2 border-white pb-1">Projects</Link>
+          <Link href="/livechat" className="text-gray-400 hover:text-white text-xl">Livechat</Link>
         </div>
         {/* Right side */}
         <div className="flex items-center space-x-4">
           {isLoggedIn && (
             <Link 
               href="/projects/new" 
-              className="bg-purple-600 text-white px-4 py-2 rounded-lg text-lg hover:bg-purple-500 transition-colors flex items-center gap-2 font-medium"
+              className="bg-white text-black px-4 py-2 rounded-lg text-lg hover:bg-gray-200 transition-colors flex items-center gap-2 font-semibold shadow-md"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -70,7 +70,7 @@ export default function Projects() {
           )}
           
           {/* Search */}
-          <button onClick={() => setShowSearch(true)} className="text-white text-xl p-2 hover:text-purple-400 transition-colors z-50">
+          <button onClick={() => setShowSearch(true)} className="text-gray-400 text-xl p-2 hover:text-white transition-colors z-50">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
@@ -84,14 +84,14 @@ export default function Projects() {
               <div className="relative z-40">
                 <button 
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
-                  className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-xl hover:bg-purple-500 transition-colors focus:outline-none uppercase"
+                  className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black font-bold text-xl hover:bg-gray-200 transition-colors focus:outline-none uppercase"
                 >
                 {currentUser ? currentUser.charAt(0) : 'U'}
               </button>
               
               {showProfileMenu && (
                 <div className="absolute top-full right-0 mt-3 bg-black bg-opacity-90 rounded-lg shadow-lg w-48 border border-gray-700 z-50 overflow-hidden">
-                  <button className="flex items-center w-full px-4 py-3 text-left text-white hover:bg-purple-600 transition-colors">
+                  <button className="flex items-center w-full px-4 py-3 text-left text-gray-300 hover:bg-gray-800 hover:text-white transition-colors">
                     <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                     Settings
                   </button>
@@ -125,7 +125,7 @@ export default function Projects() {
           <div className="bg-red-900/40 border border-red-500 text-red-200 p-6 rounded-xl max-w-2xl mb-8">
             <h3 className="text-xl font-bold mb-2">Failed to load projects</h3>
             <p className="font-mono text-sm">{fetchError}</p>
-            <p className="mt-4 text-sm text-red-300">If you see a "Missing or insufficient permissions" error, please go to your Firebase Console -&gt; Firestore Database -&gt; Rules, and ensure your read/write rules allow access.</p>
+            <p className="mt-4 text-sm text-red-300">If you see a 'Could not find the table' error, you need to run the Supabase SQL Setup Script in your Supabase Dashboard -&gt; SQL Editor!</p>
           </div>
         )}
         
@@ -134,11 +134,11 @@ export default function Projects() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl">
             {projectsList.map(project => (
-              <Link href={`/projects/${project.id}`} key={project.id} className="bg-[#111113]/80 backdrop-blur-md rounded-2xl border border-white/10 hover:border-purple-500/30 p-6 transition-all text-left flex flex-col shadow-xl group">
+              <Link href={`/projects/${project.id}`} key={project.id} className="bg-black/20 backdrop-blur-xl rounded-2xl border border-white/5 hover:bg-black/40 hover:border-white/20 hover:-translate-y-1 hover:shadow-2xl shadow-black/50 p-6 transition-all duration-300 text-left flex flex-col group">
                 <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-2xl font-bold truncate text-white group-hover:text-purple-400 transition-colors">{project.title}</h3>
+                  <h3 className="text-2xl font-bold truncate text-white group-hover:text-gray-300 transition-colors">{project.title}</h3>
                   {project.projectType && (
-                    <span className="bg-blue-900/40 text-blue-300 border border-blue-700/50 px-2 py-1 rounded text-xs font-semibold whitespace-nowrap">
+                    <span className="bg-white/10 text-white border border-white/10 px-2 py-1 rounded text-xs font-semibold whitespace-nowrap">
                       {project.projectType}
                     </span>
                   )}
@@ -171,7 +171,7 @@ export default function Projects() {
 
                 <div className="flex flex-wrap gap-2 mb-2 flex-grow content-start">
                   {project.skills?.map(skill => (
-                    <span key={skill} className="bg-white/5 border border-white/10 px-2 py-1 rounded text-xs text-gray-300">{skill}</span>
+                    <span key={skill} className="bg-black/40 border border-white/10 px-2 py-1 rounded text-xs text-gray-300">{skill}</span>
                   ))}
                 </div>
               </Link>
@@ -223,13 +223,13 @@ export default function Projects() {
             <div className="flex w-full mb-6 border-b border-gray-300">
               <button 
                 onClick={() => setSearchTab('projects')}
-                className={`flex-1 py-3 text-lg font-semibold transition-colors border-b-2 ${searchTab === 'projects' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
+                className={`flex-1 py-3 text-lg font-semibold transition-colors border-b-2 ${searchTab === 'projects' ? 'border-gray-800 text-gray-800' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
               >
                 Find Projects
               </button>
               <button 
                 onClick={() => setSearchTab('friends')}
-                className={`flex-1 py-3 text-lg font-semibold transition-colors border-b-2 ${searchTab === 'friends' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
+                className={`flex-1 py-3 text-lg font-semibold transition-colors border-b-2 ${searchTab === 'friends' ? 'border-gray-800 text-gray-800' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
               >
                 Find Friends
               </button>
@@ -243,7 +243,7 @@ export default function Projects() {
                   placeholder={searchTab === 'projects' ? "Search for projects..." : "Search for users..."} 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full p-4 pl-12 border text-black text-lg rounded-lg focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 bg-gray-50 text-black" 
+                  className="w-full p-4 pl-12 border border-gray-300 text-black text-lg rounded-lg focus:outline-none focus:border-gray-800 focus:ring-1 focus:ring-gray-800 bg-gray-50" 
                 />
                 <svg className="w-6 h-6 text-gray-400 absolute left-4 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />

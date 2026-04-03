@@ -50,20 +50,20 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-black to-purple-900 text-white font-poppins flex flex-col">
+    <div className="min-h-screen text-white font-poppins flex flex-col">
       {/* Navbar */}
       <nav className="flex items-center justify-between p-4 flex-none border-b border-gray-800">
         {/* Left side */}
         <div className="flex items-center space-x-6">
           <Link href="/" className="text-3xl font-bold">CollabCrew</Link>
-          <Link href="/dashboard" className="text-white hover:text-purple-400 text-xl font-semibold border-b-2 border-purple-500 pb-1">Dashboard</Link>
-          <Link href="/projects" className="text-white hover:text-purple-400 text-xl">Projects</Link>
-          <Link href="/livechat" className="text-white hover:text-purple-400 text-xl">Livechat</Link>
+          <Link href="/dashboard" className="text-white hover:text-gray-300 text-xl font-semibold border-b-2 border-white pb-1">Dashboard</Link>
+          <Link href="/projects" className="text-gray-400 hover:text-white text-xl">Projects</Link>
+          <Link href="/livechat" className="text-gray-400 hover:text-white text-xl">Livechat</Link>
         </div>
         {/* Right side */}
         <div className="flex items-center space-x-4">
           {/* Search */}
-          <button onClick={() => setShowSearch(true)} className="text-white text-xl p-2 hover:text-purple-400 transition-colors">
+          <button onClick={() => setShowSearch(true)} className="text-gray-400 text-xl p-2 hover:text-white transition-colors">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
@@ -77,7 +77,7 @@ export default function Dashboard() {
               <div className="relative">
                 <button
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
-                  className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-xl hover:bg-purple-500 transition-colors focus:outline-none uppercase"
+                  className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black font-bold text-xl hover:bg-gray-200 transition-colors focus:outline-none uppercase"
                 >
                 {currentUser ? currentUser.charAt(0) : 'U'}
               </button>
@@ -114,7 +114,7 @@ export default function Dashboard() {
         <div className="w-2/5 md:w-[40%] bg-black/40 border-r border-white/10 p-8 flex flex-col items-center overflow-y-auto">
           {/* Profile Picture & Info */}
           <div className="flex flex-col items-center mt-8 mb-10 w-full">
-            <div className="w-40 h-40 rounded-full bg-gradient-to-tr from-purple-600 to-blue-500 flex items-center justify-center text-6xl font-bold uppercase shadow-[0_0_30px_rgba(168,85,247,0.4)] mb-6 border-4 border-black/50">
+            <div className="w-40 h-40 rounded-full bg-gradient-to-tr from-gray-800 to-black flex items-center justify-center text-6xl font-bold uppercase shadow-[0_0_30px_rgba(255,255,255,0.05)] mb-6 border-4 border-white/20 text-white">
               {currentUser ? currentUser.charAt(0) : 'U'}
             </div>
             <h2 className="text-3xl font-bold mb-2 tracking-wide">{currentUser || 'User Profile'}</h2>
@@ -123,29 +123,29 @@ export default function Dashboard() {
 
           {/* User Details Box */}
           <div className="w-full bg-white/5 rounded-2xl p-6 border border-white/10 mb-8 backdrop-blur-sm">
-            <h3 className="text-xl font-semibold mb-4 text-purple-300 border-b border-white/10 pb-2">Work Period</h3>
+            <h3 className="text-xl font-semibold mb-4 text-white border-b border-white/10 pb-2">Work Period</h3>
             <div className="flex items-center text-gray-300 gap-3 mb-2 text-lg">
-              <svg className="w-5 h-5 text-purple-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <svg className="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               <span>Member since Sept 2024</span>
             </div>
             <div className="flex items-center text-gray-300 gap-3 text-lg">
-              <svg className="w-5 h-5 text-purple-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+              <svg className="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
               <span>Available 20 hrs/week</span>
             </div>
           </div>
 
           {/* Skills Section */}
           <div className="w-full bg-white/5 rounded-2xl p-6 border border-white/10 backdrop-blur-sm">
-            <h3 className="text-xl font-semibold mb-5 text-purple-300 border-b border-white/10 pb-2 flex justify-between items-center">
+            <h3 className="text-xl font-semibold mb-5 text-white border-b border-white/10 pb-2 flex justify-between items-center">
               Top Skills
               <button className="text-sm text-gray-400 hover:text-white transition-colors">Edit</button>
             </h3>
             <div className="flex flex-wrap gap-3">
-              <span className="bg-purple-900/50 text-purple-200 px-4 py-2 rounded-full text-base font-medium border border-purple-500/30">React.js</span>
-              <span className="bg-blue-900/50 text-blue-200 px-4 py-2 rounded-full text-base font-medium border border-blue-500/30">Node.js</span>
-              <span className="bg-gray-800 text-gray-200 px-4 py-2 rounded-full text-base font-medium border border-gray-600">TypeScript</span>
-              <span className="bg-cyan-900/50 text-cyan-200 px-4 py-2 rounded-full text-base font-medium border border-cyan-500/30">Tailwind CSS</span>
-              <span className="bg-green-900/50 text-green-200 px-4 py-2 rounded-full text-base font-medium border border-green-500/30">MongoDB</span>
+              <span className="bg-white/10 text-gray-200 px-4 py-2 rounded-full text-base font-medium border border-white/20">React.js</span>
+              <span className="bg-white/10 text-gray-200 px-4 py-2 rounded-full text-base font-medium border border-white/20">Node.js</span>
+              <span className="bg-white/10 text-gray-200 px-4 py-2 rounded-full text-base font-medium border border-white/20">TypeScript</span>
+              <span className="bg-white/10 text-gray-200 px-4 py-2 rounded-full text-base font-medium border border-white/20">Tailwind CSS</span>
+              <span className="bg-white/10 text-gray-200 px-4 py-2 rounded-full text-base font-medium border border-white/20">MongoDB</span>
               <button className="bg-white/5 text-gray-400 px-4 py-2 rounded-full text-base font-medium border border-white/10 border-dashed hover:text-white hover:bg-white/10 transition-colors flex items-center justify-center">
                 + Add Skill
               </button>
@@ -156,8 +156,8 @@ export default function Dashboard() {
         {/* Right Pane (60%) - User Projects */}
         <div className="w-3/5 md:w-[60%] p-10 overflow-y-auto">
           <div className="flex justify-between items-center mb-10">
-            <h2 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">My Projects</h2>
-            <Link href="/projects" className="bg-purple-600 hover:bg-purple-500 text-white px-5 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 shadow-lg shadow-purple-900/50">
+            <h2 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-100 to-gray-500">My Projects</h2>
+            <Link href="/projects" className="bg-white hover:bg-gray-200 text-black px-5 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 shadow-lg">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
               New Project
             </Link>
@@ -167,7 +167,7 @@ export default function Dashboard() {
             <div className="bg-red-900/40 border border-red-500 text-red-200 p-6 rounded-xl max-w-2xl mb-8">
               <h3 className="text-xl font-bold mb-2">Failed to load Dashboard</h3>
               <p className="font-mono text-sm">{fetchError}</p>
-              <p className="mt-4 text-sm text-red-300">If you see an "index" error, click the Firebase link in the error message to build the index. If you see a permissions error, check your Firestore Rules.</p>
+              <p className="mt-4 text-sm text-red-300">If you see a 'Could not find the table' error, you need to run the Supabase SQL Setup Script in your Supabase Dashboard -&gt; SQL Editor!</p>
             </div>
           )}
 
@@ -175,12 +175,12 @@ export default function Dashboard() {
             {loading ? (
               <p className="text-gray-400">Loading projects...</p>
             ) : myProjects.map(project => (
-              <Link href={`/projects/${project.id}`} key={project.id} className="bg-black/40 p-6 rounded-2xl border border-white/10 hover:border-purple-500/50 transition-all group flex flex-col h-full relative overflow-hidden">
+              <Link href={`/projects/${project.id}`} key={project.id} className="bg-black/40 p-6 rounded-2xl border border-white/10 hover:border-white/40 transition-all group flex flex-col h-full relative overflow-hidden">
                 <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-2xl font-bold text-white truncate group-hover:text-purple-400 transition-colors">{project.title}</h3>
+                  <h3 className="text-2xl font-bold text-white truncate group-hover:text-gray-300 transition-colors">{project.title}</h3>
                   <div className="flex flex-col gap-2 items-end">
-                    {project.creatorId === user?.uid && <span className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded text-xs font-semibold border border-purple-500/20">👑 Owner</span>}
-                    {project.projectType && <span className="px-2 py-1 bg-blue-900/30 text-blue-300 rounded text-xs font-semibold border border-blue-700/50">{project.projectType}</span>}
+                    {project.creatorId === user?.uid && <span className="px-2 py-1 bg-white/10 text-white rounded text-xs font-semibold border border-white/20">👑 Owner</span>}
+                    {project.projectType && <span className="px-2 py-1 bg-white/10 text-gray-300 rounded text-xs font-semibold border border-white/20">{project.projectType}</span>}
                   </div>
                 </div>
                 <p className="text-gray-400 mb-4 flex-grow leading-relaxed line-clamp-2 text-sm">{project.description}</p>
@@ -216,8 +216,8 @@ export default function Dashboard() {
               </Link>
             ))}
             
-            <Link href="/projects" className="bg-white/5 border-2 border-dashed border-white/20 rounded-2xl p-6 flex flex-col items-center justify-center text-gray-400 hover:text-white hover:border-purple-500/50 hover:bg-white/10 transition-all min-h-[200px] group">
-              <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 group-hover:bg-purple-500/20 group-hover:text-purple-400 transition-colors">
+            <Link href="/projects" className="bg-white/5 border-2 border-dashed border-white/20 rounded-2xl p-6 flex flex-col items-center justify-center text-gray-400 hover:text-white hover:border-white/50 hover:bg-white/10 transition-all min-h-[200px] group">
+              <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 group-hover:bg-white/10 group-hover:text-white transition-colors">
                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
               </div>
               <h3 className="text-xl font-bold mb-2">Join a New Project</h3>

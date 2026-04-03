@@ -132,3 +132,46 @@ body {
     @apply font-sans;
   }
 }
+
+/* Custom SaaS Dark Background Snippet */
+.bg-saas-dark {
+  /* Up to down dark minimal gradient */
+  background: linear-gradient(180deg, #0f0f0f 0%, #2a2a2a 100%) !important;
+  background-attachment: fixed !important;
+  color: #f8fafc;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Subtle abstract radial glow for depth (Neutral tint) */
+.bg-saas-dark::before {
+  content: "";
+  position: fixed;
+  top: -20%;
+  left: -10%;
+  width: 50vw;
+  height: 50vh;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.02) 0%, transparent 70%);
+  filter: blur(90px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Deeper modern overlay blob for the bottom right corner (Darker neutral tint) */
+.bg-saas-dark::after {
+  content: "";
+  position: fixed;
+  bottom: -15%;
+  right: -15%;
+  width: 60vw;
+  height: 60vh;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.5) 0%, transparent 80%);
+  filter: blur(120px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.bg-saas-dark > * {
+  position: relative;
+  z-index: 10;
+}

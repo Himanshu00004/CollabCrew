@@ -19,6 +19,7 @@ export default function NewProject() {
   const [description, setDescription] = useState('');
   const [projectType, setProjectType] = useState('Select type');
   const [commitment, setCommitment] = useState('Flexible');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [skillSearch, setSkillSearch] = useState('');
   const [skills, setSkills] = useState([]);
@@ -55,7 +56,9 @@ export default function NewProject() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title || !description) return alert("Title and description are required.");
+    if (isSubmitting) return;
     
+    setIsSubmitting(true);
     try {
       const newProjectId = await createProject(
         title, 
@@ -73,6 +76,7 @@ export default function NewProject() {
       router.push(`/projects/${newProjectId}`);
     } catch (error) {
       alert("Failed to create project: " + error.message);
+      setIsSubmitting(false);
     }
   };
 
@@ -94,7 +98,7 @@ export default function NewProject() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-black to-purple-900 text-white font-poppins pb-20 selection:bg-purple-500/30">
+    <div className="min-h-screen text-white font-poppins pb-20 selection:bg-purple-500/30">
       {/* Navbar implementation matching app */}
       <nav className="flex items-center justify-between p-4 font-poppins">
         <div className="flex items-center space-x-6">
@@ -136,6 +140,7 @@ export default function NewProject() {
       </nav>
 
       <main className="max-w-3xl mx-auto pt-10 px-4">
+        <form onSubmit={handleSubmit}>
         {/* Box 1: Project Details */}
         <div className="bg-[#111113]/80 backdrop-blur-md rounded-2xl border border-white/10 p-6 md:p-8 mb-6 shadow-2xl">
           <div className="flex items-center gap-3 mb-6">
@@ -373,13 +378,14 @@ export default function NewProject() {
             Cancel
           </button>
           <button 
-            type="button"
-            onClick={handleSubmit}
-            className="flex-1 py-4 text-lg font-semibold rounded-xl bg-white text-black hover:bg-gray-200 transition-colors"
+            type="submit"
+            disabled={isSubmitting}
+            className={`flex-1 py-4 text-lg font-semibold rounded-xl transition-colors ${isSubmitting ? 'bg-purple-600/50 text-gray-300 cursor-not-allowed' : 'bg-purple-600 text-white hover:bg-purple-500 shadow-lg shadow-purple-900/40'}`}
           >
-            Create Project
+            {isSubmitting ? 'Creating...' : 'Create Project'}
           </button>
         </div>
+        </form>
       </main>
 
       {/* Logout Confirmation Modal */}

@@ -82,17 +82,17 @@ export default function Livechat() {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-blue-900 via-black to-purple-900 text-white font-poppins flex flex-col overflow-hidden">
+    <div className="h-screen text-white font-poppins flex flex-col overflow-hidden">
       {/* Navbar Minimalist */}
       <nav className="flex items-center justify-between p-4 flex-none border-b border-gray-800 bg-black/40 z-10 backdrop-blur-sm">
         <div className="flex items-center space-x-6">
           <Link href="/" className="text-3xl font-bold">CollabCrew</Link>
-          <Link href="/dashboard" className="text-white hover:text-purple-400 text-xl">Dashboard</Link>
-          <Link href="/projects" className="text-white hover:text-purple-400 text-xl">Projects</Link>
-          <Link href="/livechat" className="text-white hover:text-purple-400 text-xl font-semibold border-b-2 border-purple-500 pb-1">Livechat</Link>
+          <Link href="/dashboard" className="text-gray-400 hover:text-white text-xl">Dashboard</Link>
+          <Link href="/projects" className="text-gray-400 hover:text-white text-xl">Projects</Link>
+          <Link href="/livechat" className="text-white hover:text-gray-300 text-xl font-semibold border-b-2 border-white pb-1">Livechat</Link>
         </div>
         <div className="flex items-center space-x-4">
-          <button onClick={() => setShowSearch(true)} className="text-white text-xl p-2 hover:text-purple-400 transition-colors">
+          <button onClick={() => setShowSearch(true)} className="text-gray-400 text-xl p-2 hover:text-white transition-colors">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
           </button>
           
@@ -102,13 +102,13 @@ export default function Livechat() {
               <div className="relative">
                 <button
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
-                  className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-xl hover:bg-purple-500 transition-colors uppercase"
+                  className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black font-bold text-xl hover:bg-gray-200 transition-colors uppercase"
                 >
                   {currentUser ? currentUser.charAt(0) : 'U'}
                 </button>
                 {showProfileMenu && (
                   <div className="absolute top-full right-0 mt-3 bg-black bg-opacity-90 rounded-lg shadow-lg w-48 border border-gray-700 z-50 overflow-hidden">
-                    <button className="flex items-center w-full px-4 py-3 text-left text-white hover:bg-purple-600 transition-colors">
+                    <button className="flex items-center w-full px-4 py-3 text-left text-gray-300 hover:bg-gray-800 hover:text-white transition-colors">
                       <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                       Settings
                     </button>
@@ -154,7 +154,7 @@ export default function Livechat() {
                 </div>
                 <p className="text-gray-400 font-medium">No active chats.</p>
                 <p className="text-sm text-gray-500">Join a project to start communicating with your team.</p>
-                <Link href="/projects" className="mt-2 bg-purple-600/20 text-purple-400 border border-purple-500/30 px-4 py-2 rounded font-semibold text-sm hover:bg-purple-600 hover:text-white transition-colors">
+                <Link href="/projects" className="mt-2 bg-white/10 text-gray-300 border border-white/20 px-4 py-2 rounded font-semibold text-sm hover:bg-white/20 hover:text-white transition-colors">
                   Explore Projects
                 </Link>
               </div>
@@ -163,9 +163,9 @@ export default function Livechat() {
                 <div 
                   key={project.id}
                   onClick={() => setActiveProjectId(project.id)}
-                  className={`p-4 border-b border-white/5 cursor-pointer hover:bg-white/5 transition-colors flex items-center gap-4 ${activeProjectId === project.id ? 'bg-purple-900/40 border-l-4 border-l-purple-500' : 'border-l-4 border-l-transparent'}`}
+                  className={`p-4 border-b border-white/5 cursor-pointer hover:bg-white/5 transition-colors flex items-center gap-4 ${activeProjectId === project.id ? 'bg-white/10 border-l-4 border-l-white' : 'border-l-4 border-l-transparent'}`}
                 >
-                  <div className={`w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center text-xl font-bold shadow-lg ${activeProjectId === project.id ? 'bg-gradient-to-tr from-purple-600 to-blue-500' : 'bg-gray-800'}`}>
+                  <div className={`w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center text-xl font-bold shadow-lg ${activeProjectId === project.id ? 'bg-gradient-to-tr from-gray-600 to-gray-400' : 'bg-gray-800'}`}>
                     {project.title.charAt(0)}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -191,11 +191,11 @@ export default function Livechat() {
           {activeProjectData ? (
             <div className="h-20 px-6 border-b border-white/10 flex items-center justify-between flex-none bg-black/40 backdrop-blur-md">
               <div className="flex items-center gap-4">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold shadow-lg bg-gradient-to-tr from-purple-600 to-blue-500`}>
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold shadow-lg bg-gradient-to-tr from-gray-600 to-gray-400`}>
                   {activeProjectData.title.charAt(0)}
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-white hover:text-purple-400 transition-colors cursor-pointer">
+                  <h2 className="text-xl font-bold text-white hover:text-gray-300 transition-colors cursor-pointer">
                     <Link href={`/projects/${activeProjectData.id}`}>{activeProjectData.title}</Link>
                   </h2>
                   <div className="flex items-center gap-2 text-sm">
@@ -241,7 +241,7 @@ export default function Livechat() {
                   <div key={msg.id} className={`flex w-full animate-fade-in-up ${isMe ? 'justify-end' : 'justify-start'}`}>
                     <div className={`flex gap-3 max-w-[70%] ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
                       {/* Avatar */}
-                      <div className={`w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-sm mt-auto shadow-md ${isMe ? 'bg-purple-600' : 'bg-gray-700'}`}>
+                      <div className={`w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-sm mt-auto shadow-md ${isMe ? 'bg-white text-black' : 'bg-gray-700 text-white'}`}>
                         {msg.senderName?.charAt(0) || 'U'}
                       </div>
                       
@@ -264,7 +264,7 @@ export default function Livechat() {
                         <div 
                           className={`p-4 rounded-2xl shadow-sm text-[15px] leading-relaxed break-words ${
                             isMe 
-                              ? 'bg-purple-600 text-white rounded-br-sm shadow-purple-900/40' 
+                              ? 'bg-white text-black rounded-br-sm shadow-[0_0_15px_rgba(255,255,255,0.1)]' 
                               : 'bg-[#1e1e20] text-gray-200 rounded-bl-sm border border-white/5'
                           }`}
                         >
@@ -297,14 +297,14 @@ export default function Livechat() {
                   }}
                   disabled={!activeProjectId || !isLoggedIn}
                   placeholder={activeProjectId ? "Type a message to your team..." : "Select a project first"} 
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 focus:bg-white/10 transition-colors resize-none overflow-hidden min-h-[50px] max-h-32 disabled:bg-transparent disabled:cursor-not-allowed"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white focus:bg-white/10 transition-colors resize-none overflow-hidden min-h-[50px] max-h-32 disabled:bg-transparent disabled:cursor-not-allowed"
                   rows={1}
                 ></textarea>
               </div>
               <button 
                 type="submit" 
                 disabled={!messageInput.trim() || !activeProjectId}
-                className={`p-3 rounded-xl flex items-center justify-center transition-all mb-1 min-h-[50px] min-w-[50px] ${messageInput.trim() && activeProjectId ? 'bg-purple-600 text-white hover:bg-purple-500 shadow-lg shadow-purple-900/50 hover:-translate-y-0.5' : 'bg-white/5 text-gray-500 cursor-not-allowed'}`}
+                className={`p-3 rounded-xl flex items-center justify-center transition-all mb-1 min-h-[50px] min-w-[50px] ${messageInput.trim() && activeProjectId ? 'bg-white text-black hover:bg-gray-200 shadow-lg shadow-white/20 hover:-translate-y-0.5' : 'bg-white/5 text-gray-500 cursor-not-allowed'}`}
               >
                 <svg className="w-6 h-6 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
               </button>
@@ -352,13 +352,13 @@ export default function Livechat() {
             <div className="flex w-full mb-6 border-b border-gray-300">
               <button
                 onClick={() => setSearchTab('projects')}
-                className={`flex-1 py-3 text-lg font-semibold transition-colors border-b-2 ${searchTab === 'projects' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
+                className={`flex-1 py-3 text-lg font-semibold transition-colors border-b-2 ${searchTab === 'projects' ? 'border-gray-800 text-gray-800' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
               >
                 Find Projects
               </button>
               <button
                 onClick={() => setSearchTab('friends')}
-                className={`flex-1 py-3 text-lg font-semibold transition-colors border-b-2 ${searchTab === 'friends' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
+                className={`flex-1 py-3 text-lg font-semibold transition-colors border-b-2 ${searchTab === 'friends' ? 'border-gray-800 text-gray-800' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
               >
                 Find Friends
               </button>
@@ -372,7 +372,7 @@ export default function Livechat() {
                   placeholder={searchTab === 'projects' ? "Search for projects..." : "Search for users..."}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full p-4 pl-12 border text-black text-lg rounded-lg focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 bg-gray-50 text-black"
+                  className="w-full p-4 pl-12 border border-gray-300 text-black text-lg rounded-lg focus:outline-none focus:border-gray-800 focus:ring-1 focus:ring-gray-800 bg-gray-50"
                 />
                 <svg className="w-6 h-6 text-gray-400 absolute left-4 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />

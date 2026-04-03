@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { SpaceBackground } from '@/components/animate-ui/components/backgrounds/space';
 import { useAuth } from '@/contexts/AuthContext';
-import { updateProfile } from 'firebase/auth';
 import NotificationBell from '@/components/NotificationBell';
 
 export default function Home() {
@@ -149,16 +148,7 @@ export default function Home() {
                   setEmailInput('');
                   setPasswordInput('');
                 } catch (error) {
-                  const errorCode = error.code;
-                  if (errorCode === 'auth/invalid-credential') {
-                    setAuthError('Wrong email or password.');
-                  } else if (errorCode === 'auth/user-not-found' || errorCode === 'auth/invalid-email') {
-                    setAuthError('Wrong email address.');
-                  } else if (errorCode === 'auth/wrong-password') {
-                    setAuthError('Wrong password.');
-                  } else {
-                    setAuthError('Failed to login. Please try again.');
-                  }
+                  setAuthError(error.message || 'Failed to login. Please try again.');
                 }
               }}
               className="w-full bg-purple-600 text-white p-3 rounded-lg font-semibold mb-6 hover:bg-purple-700 transition-colors shadow-none"
@@ -220,10 +210,7 @@ export default function Home() {
               onClick={async () => {
                 setAuthError('');
                 try {
-                  const userCredential = await registerWithEmail(emailInput, passwordInput);
-                  if (userCredential.user && usernameInput) {
-                    await updateProfile(userCredential.user, { displayName: usernameInput });
-                  }
+                  await registerWithEmail(emailInput, passwordInput, usernameInput);
                   setShowRegister(false);
                   setEmailInput('');
                   setPasswordInput('');

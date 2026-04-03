@@ -1,20 +1,17 @@
-import { db } from './firebase';
-import { 
-  collection, addDoc, getDocs, doc, updateDoc, 
-  query, where, serverTimestamp, onSnapshot, orderBy
-} from 'firebase/firestore';
+import { supabase } from './supabase';
 
 export const createNotification = async (userId: string, type: string, message: string, projectId: string | null = null) => {
   try {
-    const docRef = await addDoc(collection(db, 'notifications'), {
-      userId,
+    const { data, error } = await supabase.from('notifications').insert([{
+      user_id: userId,
       type, // 'request_accepted', 'request_rejected', 'new_request'
       message,
-      projectId,
-      read: false,
-      createdAt: serverTimestamp()
-    });
-    return docRef.id;
+      project_id: projectId,
+      read: false
+    }]).select('id').single();
+
+    if (error) throw error;
+    return data.id;
   } catch (e) {
     console.error('Error adding notification: ', e);
     throw e;
@@ -24,39 +21,52 @@ export const createNotification = async (userId: string, type: string, message: 
 export const subscribeToNotifications = (userId: string, callback: any) => {
   if (!userId) return () => {};
   
-  const q = query(
-    collection(db, 'notifications'), 
-    where('userId', '==', userId),
-    // orderBy('createdAt', 'desc') // Need index for this if combining where and orderBy, so skipping orderBy for simpler setup
-  );
+  let currentNotifs: any[] = [];
 
-  const unsubscribe = onSnapshot(q, (querySnapshot) => {
-    const notifications: any[] = [];
-    querySnapshot.forEach((doc) => {
-      notifications.push({ id: doc.id, ...doc.data() });
+  // Query initial
+  supabase
+    .from('notifications')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .then(({ data }) => {
+      if (data) {
+        currentNotifs = data.map(n => ({ ...n, userId: n.user_id, projectId: n.project_id }));
+        callback([...currentNotifs]);
+      }
     });
-    
-    // Process local sort since we omitted orderBy
-    notifications.sort((a, b) => {
-      const timeA = a.createdAt?.toMillis() || 0;
-      const timeB = b.createdAt?.toMillis() || 0;
-      return timeB - timeA;
-    });
-    
-    callback(notifications);
-  }, (error) => {
-    console.error('Error listening to notifications: ', error);
-  });
 
-  return unsubscribe;
+  // Setup Realtime
+  const channel = supabase.channel(`public:notifications:user_id=eq.${userId}`)
+    .on('postgres_changes', { 
+      event: 'INSERT', 
+      schema: 'public', 
+      table: 'notifications',
+      filter: `user_id=eq.${userId}`
+    }, (payload) => {
+      const newN = payload.new;
+      currentNotifs.unshift({
+        ...newN,
+        userId: newN.user_id,
+        projectId: newN.project_id
+      }); // Insert at top since descending
+      callback([...currentNotifs]);
+    })
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
 };
 
 export const markNotificationAsRead = async (notificationId: string) => {
     try {
-      const notifRef = doc(db, 'notifications', notificationId);
-      await updateDoc(notifRef, {
-        read: true
-      });
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('id', notificationId);
+        
+      if (error) throw error;
     } catch (e) {
       console.error('Error marking notification as read: ', e);
       throw e;
@@ -67,8 +77,10 @@ export const markAllNotificationsAsRead = async (userId: string, notifications: 
   try {
     const unread = notifications.filter(n => !n.read);
     const promises = unread.map(n => {
-        const notifRef = doc(db, 'notifications', n.id);
-        return updateDoc(notifRef, { read: true });
+        return supabase
+          .from('notifications')
+          .update({ read: true })
+          .eq('id', n.id);
     });
     await Promise.all(promises);
   } catch (e) {
